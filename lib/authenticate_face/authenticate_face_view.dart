@@ -752,76 +752,87 @@ class _AuthenticateFaceViewState extends State<AuthenticateFaceView> {
     var authJson;
     var name;
     for (var list = 0; list < userList.length; list++) {
-      if (_empCodeController.text == userList[list]['empCode']) {
+      // if (_empCodeController.text == userList[list]['empCode']) {
         authJson = userList[list]['auth_json'];
         name = userList[list]['name'];
 
         print(userList[list]);
-        break;
-      }
-    }
+        // if (authJson != null) {
+          print(authJson);
+          print("started -------------------------------------");
+          registeredImage.bitmap = authJson["bitmap"];
+          registeredImage.imageType = authJson["imageType"];
 
-    if (authJson != null) {
-      print(authJson);
-      print("started -------------------------------------");
-      registeredImage.bitmap = authJson["bitmap"];
-      registeredImage.imageType = authJson["imageType"];
+          if (registeredImage.bitmap == null ||
+              registeredImage.bitmap == "" ||
+              image2.bitmap == null ||
+              image2.bitmap == "") return;
 
-      if (registeredImage.bitmap == null ||
-          registeredImage.bitmap == "" ||
-          image2.bitmap == null ||
-          image2.bitmap == "") return;
+          var request = Regula.MatchFacesRequest();
 
-      var request = Regula.MatchFacesRequest();
-
-      request.images = [registeredImage, image2];
-      var value = await Regula.FaceSDK.matchFaces(jsonEncode(request));
-      var response = Regula.MatchFacesResponse.fromJson(json.decode(value));
-      var str = await Regula.FaceSDK.matchFacesSimilarityThresholdSplit(
-          jsonEncode(response!.results), 0.75);
-      var split =
+          request.images = [registeredImage, image2];
+          var value = await Regula.FaceSDK.matchFaces(jsonEncode(request));
+          var response = Regula.MatchFacesResponse.fromJson(json.decode(value));
+          var str = await Regula.FaceSDK.matchFacesSimilarityThresholdSplit(
+              jsonEncode(response!.results), 0.75);
+          var split =
           Regula.MatchFacesSimilarityThresholdSplit.fromJson(json.decode(str));
-      print(split);
+          print(split);
 
-      _similarity = split!.matchedFaces.length > 0
-          ? ((split.matchedFaces[0]!.similarity! * 100).toStringAsFixed(2) +
+          _similarity = split!.matchedFaces.length > 0
+              ? ((split.matchedFaces[0]!.similarity! * 100).toStringAsFixed(2) +
               "%")
-          : "error";
+              : "error";
 
-      print(_similarity);
+          print(_similarity);
 
-      print("STATUS");
-      print(_similarity);
-      print("end -------------------------------------");
-      if (_similarity != 'error') {
-        print("DONE --");
-        SmartDialog.dismiss();
-        verified = true;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (context) => UserDetailsView(
+          print("STATUS");
+          print(_similarity);
+          print("end -------------------------------------");
+          if (_similarity != 'error') {
+            print("DONE --");
+            SmartDialog.dismiss();
+            verified = true;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (context) => UserDetailsView(
                     image: img2,
                     user: name,
                   )),
-        );
-      }
+            );
+            verified = true;
+            break;
+          }
 
-      if (!verified) {
-        SmartDialog.dismiss();
-        _showFailureDialog(
-          title: "No Users Registered",
-          description:
-              "Make sure users are registered first before Authenticating.",
-        );
-      }
-    } else {
+          // if (!verified) {
+          //   SmartDialog.dismiss();
+          //   _showFailureDialog(
+          //     title: "No Users Registered",
+          //     description:
+          //     "Make sure users are registered first before Authenticating.",
+          //   );
+          // }
+        // } else {
+        //   SmartDialog.dismiss();
+        //   _showFailureDialog(
+        //     title: "No Users Registered",
+        //     description:
+        //     "Make sure users are registered first before Authenticating.",
+        //   );
+        // }
+
+      // }
+    }
+
+    if (!verified) {
       SmartDialog.dismiss();
       _showFailureDialog(
         title: "No Users Registered",
         description:
-            "Make sure users are registered first before Authenticating.",
+        "Make sure users are registered first before Authenticating.",
       );
     }
+
   }
 
   _showFailureDialog({
